@@ -266,7 +266,7 @@ public class NodeCameraView extends FrameLayout implements GLSurfaceView.Rendere
 
         try {
             Camera.Parameters para = mCamera.getParameters();
-            choosePreviewSize(para, 1280, 720);
+            choosePreviewSize(para, 1280/2, 720/2);
             mCamera.setParameters(para);
         } catch (Exception e) {
             Log.w(TAG, "switchCamera setParameters:" + e.getMessage());
