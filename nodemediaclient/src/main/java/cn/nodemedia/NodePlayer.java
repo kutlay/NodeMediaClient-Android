@@ -29,6 +29,7 @@ public class NodePlayer implements NodePlayerView.RenderCallback {
     private String pageUrl;
     private String swfUrl;
     private String connArgs;
+    private String cryptoKey;
     private String rtspTransport;
 
     private int bufferTime;
@@ -61,6 +62,7 @@ public class NodePlayer implements NodePlayerView.RenderCallback {
         this.pageUrl = "";
         this.swfUrl = "";
         this.connArgs = "";
+        this.cryptoKey = "";
         this.logLevel = NM_LOGLEVEL_ERROR;
         this.rtspTransport = RTSP_TRANSPORT_UDP;
         this.bufferTime = 500;
@@ -152,6 +154,10 @@ public class NodePlayer implements NodePlayerView.RenderCallback {
         this.connectWaitTimeout = connectWaitTimeout;
     }
 
+    public void setCryptoKey(String cryptoKey) {
+        this.cryptoKey = cryptoKey;
+    }
+
     public void setLogLevel(int logLevel) {
         this.logLevel = logLevel;
     }
@@ -204,8 +210,6 @@ public class NodePlayer implements NodePlayerView.RenderCallback {
     private native int jniSetVideoEnable(boolean enable);
 
     public native int setVolume(float volume);
-
-    public native void setCryptoKey(String cryptoKey);
 
     public native int start();
 

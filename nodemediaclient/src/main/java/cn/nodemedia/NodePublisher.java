@@ -23,7 +23,6 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
     private long id;
     private WindowManager wm = null;
     private NodePublisherDelegate mNodePublisherDelegate;
-    private NodePublisherVideoTextureDelegate mNodePublisherVideoTextureDelegate;
     private CapturePictureListener mCapturePictureListener;
     private NodeCameraView mNodeCameraView;
     private static AudioManager.OnAudioFocusChangeListener sAudioFocusChangeListener = null;
@@ -33,6 +32,7 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
     private String pageUrl;
     private String swfUrl;
     private String connArgs;
+    private String cryptoKey;
 
     private boolean isFrontCamera;
     private boolean isDisplayFrontMirror;
@@ -40,9 +40,9 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
 
     private int cameraId;
     private int cameraOri;
+    private int windowOri;
     private int cameraWidth;
     private int cameraHeight;
-    private int surfaceOri;
     private int surfaceWidth;
     private int surfaceHeight;
     private int logLevel;
@@ -74,7 +74,6 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
     public static final int VIDEO_PROFILE_BASELINE = 0;
     public static final int VIDEO_PROFILE_MAIN = 1;
     public static final int VIDEO_PROFILE_HIGH = 2;
-    public static final int VIDEO_PROFILE_HEVC_MAIN = 3;
 
     public static final int CAMERA_BACK = 0;
     public static final int CAMERA_FRONT = 1;
@@ -159,6 +158,10 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
         this.connArgs = connArgs;
     }
 
+    public void setCryptoKey(String cryptoKey) {
+        this.cryptoKey = cryptoKey;
+    }
+
     public void setCameraPreview(@NonNull NodeCameraView cameraPreview, int cameraID, boolean frontMirror) {
         mNodeCameraView = cameraPreview;
         mNodeCameraView.setNodeCameraViewCallback(this);
@@ -194,7 +197,7 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
         int ret = mNodeCameraView.startPreview(cameraId);
         isFrontCamera = mNodeCameraView.isFrontCamera();
         cameraOri = mNodeCameraView.getCameraOrientation();
-        surfaceOri = getWindowRotation();
+        windowOri = getWindowRotation();
         if (ret == 0) {
             isStartPreview = true;
         }
@@ -243,11 +246,6 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
         this.mNodePublisherDelegate = delegate;
     }
 
-    public void setNodePublisherVideoTextureDelegate(@NonNull NodePublisherVideoTextureDelegate nodePublisherVideoTextureDelegate) {
-        this.mNodePublisherVideoTextureDelegate = nodePublisherVideoTextureDelegate;
-        jniUseCustomFilter();
-    }
-
     private void onEvent(int event, String eventMsg) {
         if (mNodePublisherDelegate != null) {
             mNodePublisherDelegate.onEventCallback(this, event, eventMsg);
@@ -290,8 +288,6 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
 
     private native void jniSetAudioParam(int bitrate, int profile, int sampleRate);
 
-    private native void jniUseCustomFilter();
-
     public native void setVideoParam(int preset, int fps, int bitrate, int profile, boolean frontMirror);
 
     public native void setAutoReconnectWaitTimeout(int autoReconnectWaitTimeout);
@@ -301,8 +297,6 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
     public native void setBeautyLevel(int beautyLevel);
 
     public native void setHwEnable(boolean hwEnable);
-
-    public native void setCryptoKey(String cryptoKey);
 
     public native void setAudioEnable(boolean audioEnable);
 
@@ -325,39 +319,24 @@ public class NodePublisher implements NodeCameraView.NodeCameraViewCallback {
 
     @Override
     public void OnCreate() {
-        if(this.mNodePublisherVideoTextureDelegate != null) {
-            this.mNodePublisherVideoTextureDelegate.onCreateTextureCallback(this);
-        }
         jniInitGPUImage();
     }
 
     @Override
     public void OnChange(int cameraWidth, int cameraHeight, int surfaceWidth, int surfaceHeight) {
         this.cameraOri = mNodeCameraView.getCameraOrientation();
-        this.surfaceOri = getWindowRotation();
-        this.cameraWidth = cameraWidth;
-        this.cameraHeight = cameraHeight;
+        this.windowOri = getWindowRotation();
         this.isFrontCamera = mNodeCameraView.isFrontCamera();
-        if (this.mNodePublisherVideoTextureDelegate != null) {
-            this.mNodePublisherVideoTextureDelegate.onChangeTextureCallback(this, this.isFrontCamera, this.cameraOri, this.surfaceOri);
-        }
         jniChangeGPUImage(cameraWidth, cameraHeight, surfaceWidth, surfaceHeight);
     }
 
     @Override
     public void OnDraw(int textureId) {
-        if (this.mNodePublisherVideoTextureDelegate != null) {
-            textureId = this.mNodePublisherVideoTextureDelegate.onDrawTextureCallback(this, textureId, this.cameraWidth, this.cameraHeight,
-                    this.isFrontCamera, this.cameraOri);
-        }
         jniDrawGPUImage(textureId);
     }
 
     @Override
     public void OnDestroy() {
-        if(this.mNodePublisherVideoTextureDelegate != null) {
-            this.mNodePublisherVideoTextureDelegate.onDestroyTextureCallback(this);
-        }
         jniFreeGPUImage();
     }
 }

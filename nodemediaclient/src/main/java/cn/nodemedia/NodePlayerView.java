@@ -62,10 +62,8 @@ public class NodePlayerView extends FrameLayout implements SurfaceHolder.Callbac
     private int mCanvasHeight = 0;
     private int mVideoWidth = 0;
     private int mVideoHeight = 0;
-    private float mZoomScale = 1.0f;
     private boolean isSurfaceCreate = false;
     private boolean isMediaOverlay = false;
-
     public NodePlayerView(Context context) {
         super(context);
         initView(context);
@@ -164,10 +162,6 @@ public class NodePlayerView extends FrameLayout implements SurfaceHolder.Callbac
         setUIViewContentMode(mUIViewContentMode);
     }
 
-    public void setZoomScale(float zoomScale) {
-        this.mZoomScale = zoomScale;
-    }
-
     public void setUIViewContentMode(UIViewContentMode mode) {
         mUIViewContentMode = mode;
         if (mVideoWidth == 0 || mVideoHeight == 0) {
@@ -211,8 +205,6 @@ public class NodePlayerView extends FrameLayout implements SurfaceHolder.Callbac
 
                         break;
                 }
-                fixWidth *= mZoomScale;
-                fixHeight *= mZoomScale;
                 FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                         fixWidth,
                         fixHeight,

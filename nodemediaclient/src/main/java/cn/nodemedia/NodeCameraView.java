@@ -113,7 +113,7 @@ public class NodeCameraView extends FrameLayout implements GLSurfaceView.Rendere
         }
         try {
             Camera.Parameters para = mCamera.getParameters();
-            choosePreviewSize(para, 1920/4, 1080/4);
+            choosePreviewSize(para, 1920, 1080);
             mCamera.setParameters(para);
             setAutoFocus(this.isAutoFocus);
         } catch (Exception e) {
@@ -357,13 +357,15 @@ public class NodeCameraView extends FrameLayout implements GLSurfaceView.Rendere
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.d(TAG, "SV surfaceDestroyed");
-        if (mNodeCameraViewCallback != null) {
-            mNodeCameraViewCallback.OnDestroy();
+        if (mCamera != null) {
+            mCamera.stopPreview();
         }
         if (!isStarting) {
+            if (mNodeCameraViewCallback != null) {
+                mNodeCameraViewCallback.OnDestroy();
+            }
             destroyTexture();
             if (mCamera != null) {
-                mCamera.stopPreview();
                 mCamera.release();
                 mCamera = null;
             }
