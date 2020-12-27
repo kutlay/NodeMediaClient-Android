@@ -113,7 +113,7 @@ public class NodeCameraView extends FrameLayout implements GLSurfaceView.Rendere
         }
         try {
             Camera.Parameters para = mCamera.getParameters();
-            choosePreviewSize(para, 1920, 1080);
+            choosePreviewSize(para, 1920/4, 1080/4);
             mCamera.setParameters(para);
             setAutoFocus(this.isAutoFocus);
         } catch (Exception e) {
